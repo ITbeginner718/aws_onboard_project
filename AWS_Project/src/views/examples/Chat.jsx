@@ -23,7 +23,6 @@ import { Button, Card, CardBody, CardHeader, Col, Container, Row } from "reactst
 // core components
 // 윗쪽 
 import Header from "@components/Headers/Header";
-import '../../assets/css/Chat.css'; // 메시지 스타일링을 위한 CSS 파일
 
 const Chat = () => {
   //페이지 이동 시 

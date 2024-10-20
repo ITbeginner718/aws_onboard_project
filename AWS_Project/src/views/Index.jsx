@@ -17,6 +17,8 @@
 
 
 // reactstrap components
+import { useState } from "react";
+
 import {
   Container,
   Row,
@@ -30,9 +32,28 @@ import {
 
 
 import Header from "../components/Headers/Header.jsx";
+import ContractAnalysis from "../components/ContractAnalysis/ContractAnalysis.jsx";
 
 const Index = () => {
 
+  const [file, setFile] = useState(null);
+  const [uploadedInfo, setUploadedInfo] = useState(null);
+
+  const handleFileChange = (newFile) => {
+    setFile(newFile);
+    console.log("상위 컴포넌트 파일 정보:",newFile);
+    if (newFile) {
+        const { name, size: byteSize, type } = newFile;
+        const size = (byteSize / (1024 * 1024)).toFixed(2) + 'mb';
+        setUploadedInfo({ name, size, type });
+    } else {
+        setUploadedInfo(null);
+    }
+};
+
+const onClick=(e)=>{
+  e.preventDefault();
+}
   return (
     <>
       <Header />
@@ -42,22 +63,32 @@ const Index = () => {
               <CardHeader className="bg-white border-0">
                 <Row className="align-items-center">
                   <Col xs="8">
-                    <h3 className="mb-0">AI감성 챗봇</h3>
+                    <h3 className="mb-0">계약서 분석</h3>
                   </Col>
                   <Col className="text-right" xs="4">
                     <Button
                       color="primary"
                       href="#pablo"
-                      onClick={(e) => e.preventDefault()}
+                      onClick={onClick}
                       size="sm"
                     >
-                      Settings
+                     Constract Analysis
                     </Button>
                   </Col>
                 </Row>
               </CardHeader>
 
               <CardBody>
+                {/* 계약서 분석 창 */}
+                
+                
+                <ContractAnalysis
+                 file={file} 
+                 onFileChange={handleFileChange} 
+                 uploadedInfo={uploadedInfo} 
+
+                />
+                  
               </CardBody>
             </Card>
       </Container>
