@@ -20,9 +20,9 @@ export default function ContractAnalysis ({ file, onFileChange, uploadedInfo }){
         );
 
     const setFileInfo = (file) => {
-        const { name, size: byteSize, type } = file;
-        const size = (byteSize / (1024 * 1024)).toFixed(2) + 'mb';
-        setUploadedInfo({ name, size, type });  // name, size, type 정보를 uploadedInfo에 저장
+
+        onFileChange(file);
+        console.log('파일정보:', file);
         };
 
 
@@ -34,7 +34,6 @@ export default function ContractAnalysis ({ file, onFileChange, uploadedInfo }){
         // 드롭된 파일 핸들링
         // ...
         setFileInfo(file);  // 코드 추가
-
     };
 
     const handleDragOver = (event) => {
@@ -62,7 +61,6 @@ export default function ContractAnalysis ({ file, onFileChange, uploadedInfo }){
         onFileChange(uploadedFile);
         console.log('파일정보:', uploadedFile);
     };
-      
 
     return(
         <>
