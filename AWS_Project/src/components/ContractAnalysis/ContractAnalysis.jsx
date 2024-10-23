@@ -9,6 +9,8 @@ export default function ContractAnalysis ({ file, onFileChange, uploadedInfo }){
     const handleDragStart = () => setActive(true);
     const handleDragEnd = () => setActive(false);
 
+
+
     const Logo = () => (
         <svg className="icon" x="0px" y="0px" viewBox="0 0 24 24">
             <path fill="transparent" d="M0,0h24v24H0V0z" />

@@ -23,13 +23,10 @@ import Tables from "./views/examples/Tables.jsx";
 import Icons from "./views/examples/Icons.jsx";
 import Chat from "./views/examples/Chat.jsx";
 
-
-
-
 const routes = [
   {
     path: "/index",
-    name: "메인페이지",
+    name: "analysis",
     icon: "ni ni-tv-2 text-primary",
     component: <Index />,
     layout: "/admin",
@@ -37,7 +34,7 @@ const routes = [
 
   {
     path: "/chatbot",
-    name: "챗봇",
+    name: "List",
     icon: "ni ni-chat-round text-info",
     component: <Chat />,
     layout: "/admin",

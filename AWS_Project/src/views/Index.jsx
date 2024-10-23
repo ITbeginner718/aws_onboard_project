@@ -22,6 +22,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import axios from 'axios';
 import s3Client from '../aws.js';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   Container,
@@ -39,6 +40,7 @@ import {
 import Header from "../components/Headers/Header.jsx";
 import ContractAnalysis from "../components/ContractAnalysis/ContractAnalysis.jsx";
 import ContractAnalysisResult from "../components/ContractAnalysis/ContractAnalysisResult.jsx";
+import {auth} from '../firebase.js';
 
 export default function Index() {
 
@@ -50,9 +52,17 @@ export default function Index() {
   const [file, setFile] = useState(null);
   const [uploadedInfo, setUploadedInfo] = useState(null);
 
+  //s3 ID값
+  const [uniqueId, setUniqueID]= useState();
+  const [s3key, setS3key] =useState();
+  
   // 분석 진행 로딩 상태
   const [isAnaysisLoading, setIsAnalysisLoading]=useState(false);
 
+  // 사용자 정보
+  const user = auth.currentUser;
+
+  
   // 파일 변경
   const handleFileChange = (newFile) => {
 
@@ -62,6 +72,7 @@ export default function Index() {
     setContractAnalysis(null);
 
     console.log("상위 컴포넌트 파일 정보:", newFile);
+
     if (newFile) {
         const { name, size: byteSize, type } = newFile;
         const size = (byteSize / (1024 * 1024)).toFixed(2) + 'mb';
@@ -70,6 +81,28 @@ export default function Index() {
         setUploadedInfo(null);
     }
 };
+
+//s3 키값:`${prefix}/${timestamp}_${uniqueId}`
+
+//RDB:, uniqueId, UserId, 원래 파일명(공백은 _으로 대체해서 저장), s3 키값
+
+const generateS3Key = (prefix = 'rawFile') => {
+
+  const uniqueId = uuidv4();
+
+  //s3 ID 값 저장(RDB에 저장할 예정) 
+  setUniqueID(uniqueId);
+
+  const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+  
+  //s3 키값(파일명) 저장(RDB에 저장할 예정)
+  const s3KeyValue = `${prefix}/${timestamp}_${uniqueId}`;
+  
+  setS3key(s3KeyValue);
+
+  return s3KeyValue;
+};
+
 
 //파일 데이터 업로드
 const onClickUploadfile = async(e)=>{
@@ -85,19 +118,22 @@ const onClickUploadfile = async(e)=>{
   
   if(!ok)
     return;
-  
-
-  // setUploading(true);
-  // setUploadProgress(0);
-
   //분석 로딩
   setIsAnalysisLoading(true);
 
   try {
+
+    //키값 생성
+    const uniqueId = uuidv4();
+    const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+    //s3 키값(파일명) 저장(RDB에 저장할 예정)
+    const s3KeyValue = `rawFile/${timestamp}_${uniqueId}`;
+
+
     // PutObject 커맨드 생성
     const command = new PutObjectCommand({
       Bucket: import.meta.env.VITE_AWS_S3_BUCKET_NAME,
-      Key: `rawFile/file.name`,
+      Key: s3KeyValue, // 
       ContentType: file.type
     });
 
@@ -114,14 +150,15 @@ const onClickUploadfile = async(e)=>{
     
     //RDS에 파일에 대한 메타 데이터 생성(userID, fileID, s3 key)
     
-    //
-
     //업로드 성공하면 http api 호출()
     if(response.status===200 || response.status==204)
     {
       //http api 호출()
-      //결과값: 저장된 s3 키
-      textractHTTP(file.name);
+      //rds에 s3 메타데이터 저장
+      //DB_rdsDatatHTTP(file.name);
+
+      //http api 호출()
+      textractHTTP(file.name,uniqueId,s3KeyValue);
     }
 
   } catch (error) {
@@ -134,20 +171,78 @@ const onClickUploadfile = async(e)=>{
   //
 }
 
+
  //aws gateway http api 호출
- const textractHTTP =async(fileName)=>
+ const textractHTTP =async(fileName,uniqueId,s3KeyValue)=>
   {
-    console.log(fileName);
+    const fileNameReplace = fileName.replace(/\s+/g, '_');   //공백은 _으로 대체
+    console.log(fileNameReplace);
+    console.log("textractHTTP:", uniqueId,user.uid,fileNameReplace ,s3KeyValue);
     try {
-      const response = await fetch(`${import.meta.env.VITE_AWS_GATEAPI_KEY}`, {
+      const response = await fetch(`${import.meta.env.VITE_AWS_GATEAPI_ENDPOINT_TEXTRACT}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          "uniqueId": uniqueId,
+          "userId": user.uid,
+          "fileName": fileNameReplace, 
+          "s3Key": s3KeyValue
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      //분석 데이터 json 저장
+      setContractAnalysis(data);
+    
+      alert("성공적으로 실행되었습니다.");
+
+      // 파일 초기화
+      setFile(null);
+  
+    } catch (error) {
+      console.error("Error:", error);
+      setIsAnalysisLoading(false);
+      alert("오류가 발생했습니다: " + error.message);
+    }
+    
+    finally{
+      //파일 정보 null
+      setFile(null);
+      setUploadedInfo(null);
+    }
+  }
+
+  //rds 파일 저장
+
+  //aws gateway http api 호출(rds 데이터 저장)
+ const DB_rdsDatatHTTP =async(fileName)=>
+  {
+    const fileNameReplace = fileName.replace(" ",'_'); //공백은 _으로 대체
+
+    console.log(fileNameReplace);
+
+ 
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_AWS_GATEAPI_ENDPOINT_RDS_SAVEDATA}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           //여기서 키값을 받는 것이 아닌 키값을 저장하고 있는 RDB에서 ID값 전송
-          "s3_key": fileName,
+          "uniqueId": uniqueId,
+          "userId": user.uid,
+          "fileName": fileNameReplace, 
+          "s3Key": s3key
           // 필요한 경우 추가 파라미터
         }),
       });
@@ -175,14 +270,17 @@ const onClickUploadfile = async(e)=>{
     finally{
       //파일 정보 null
       setUploadedInfo(null);
+      setIsAnalysisLoading(false);
     }
   }
+
 
   useEffect(()=>{
     //데이터 분석 값 받으면 loading 해제  
     if(contractAnalysis)
     {
       setIsAnalysisLoading(false);
+      setFile(null);
     }
 
   },[contractAnalysis])

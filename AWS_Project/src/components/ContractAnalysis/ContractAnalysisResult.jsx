@@ -9,7 +9,6 @@ import {
     Row,
   } from "reactstrap";
 
-import resultData from './example.json'
 import { useEffect, useState } from "react";
 
 export default function ContractAnalysisResult({contractAnalysis})
