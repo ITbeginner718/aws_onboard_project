@@ -25,7 +25,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="header pb-8 pt-5 pt-md-8  " style={{backgroundColor:"#FFD732"}}>
+      <div className="header pb-8 pt-5 pt-md-8  " style={{backgroundColor:"#0073e6"}}>
         <Container fluid>
           <div className="header-body">
             {/* Card stats */}

@@ -61,12 +61,12 @@ const getRdsData =async(userId)=>
       }
   
       const data = await response.json();
-      console.log("Response data:", data);
+  
 
-      console.log("rds data:", data);
+      console.log("rds data:", data.body);
 
       //분석 데이터 json 저장
-      setRdsData(data);
+      setRdsData(data.body);
     
       alert("성공적으로 실행되었습니다.");
   
@@ -85,7 +85,7 @@ const getRdsData =async(userId)=>
   useEffect(() => {
 
     //http api 호출 (user id 호출)
-    //getRdsData(user.uid);
+    getRdsData(user.uid);
     
   }, []); // 빈 의존성 배열을 사용해서 컴포넌트 마운트 시에만 이벤트 리스너를 추가하고, 언마운트 시에 제거
 
@@ -131,18 +131,18 @@ const getRdsData =async(userId)=>
               <CardBody>
                 {isGetData&&
                 <>
-
-                {/* 임시 방편 나중에 꼭 바꿔줘야 함 */}
-                {rds&&
+                {RdsDatas&&
                 <>
-                 {rds.map((RdsData)=>(
+                 {RdsDatas.map((RdsData)=>(
                   <>
                     <AnalysisData key={RdsData.uniqueId} {...RdsData}/>
                   </>
                  ))}
                 </>
+                } 
+                </>
                 }
-                </>}
+               
               </CardBody>
             </Card>
       </Container>

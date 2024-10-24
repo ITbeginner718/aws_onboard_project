@@ -22,7 +22,7 @@ import { NavLink as NavLinkRRD, Link } from "react-router-dom";
 import { PropTypes } from "prop-types";
 
 import team_1 from "../../assets/img/theme/team-1-800x800.jpg"
-import pageLogo from "../../assets/img/brand/titleLogo.png"
+import pageLogo from "../../assets/img/brand/blue.png"
 
 // reactstrap components
 import {

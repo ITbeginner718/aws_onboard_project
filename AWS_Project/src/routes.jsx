@@ -21,22 +21,33 @@ import Register from "./views/examples/Register.jsx";
 import Login from "./views/examples/Login.jsx";
 import Tables from "./views/examples/Tables.jsx";
 import Icons from "./views/examples/Icons.jsx";
-import Chat from "./views/examples/Chat.jsx";
+import AnalysisList from "./views/examples/AnalysisList.jsx";
+import AnalysisDataDetail from "./components/RDS/AnalysisDataDetail.jsx";
 
 const routes = [
+
   {
     path: "/index",
     name: "analysis",
-    icon: "ni ni-tv-2 text-primary",
+    icon: "ni ni-chart-bar-32 text-primary",
     component: <Index />,
     layout: "/admin",
   },
 
   {
-    path: "/chatbot",
+    path: "/analysisList",
     name: "List",
+    icon: "ni ni-bullet-list-67 text-info",
+    component: <AnalysisList />,
+    layout: "/admin",
+  },
+
+  // 분석 데이터 리스트 디테일
+  {
+    path: "/analysisData/detail/:uniqueId",
+    name: "Anonymous",
     icon: "ni ni-chat-round text-info",
-    component: <Chat />,
+    component: <AnalysisDataDetail/>,
     layout: "/admin",
   },
 

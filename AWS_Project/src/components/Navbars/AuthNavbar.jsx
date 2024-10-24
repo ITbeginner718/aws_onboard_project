@@ -30,8 +30,8 @@ import {
 } from "reactstrap";
 
 // 이미지
-import ImageReact from "../../assets/img/brand/titleLogo.png"
-import ImageReact2 from "../../assets/img/brand/titleLogo.png"
+import ImageReact from "../../assets/img/brand/blue.png"
+import ImageReact2 from "../../assets/img/brand/blue.png"
 
 const AdminNavbar = () => {
   return (
