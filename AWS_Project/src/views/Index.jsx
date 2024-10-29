@@ -172,7 +172,7 @@ const onClickUploadfile = async(e)=>{
 }
 
 
- //aws gateway http api 호출
+ //aws gateway http api 호출(RDS 저장)
  const textractHTTP =async(fileName,uniqueId,s3KeyValue)=>
   {
     const fileNameReplace = fileName.replace(/\s+/g, '_');   //공백은 _으로 대체
